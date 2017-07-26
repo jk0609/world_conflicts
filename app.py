@@ -7,13 +7,12 @@ from newspaper import Config, Article, news_pool
 from urllib.request import urlretrieve, urlopen
 from urllib.parse import urlparse, urlencode, quote
 import json
+from mediameter.cliff import Cliff
 
 app = Flask(__name__)
-
 #get_articles every 24 hours
-#dont process duplicates(handle with ruby validation?)
 #cut down on load times
-#fix 404 cases and json error cases
+#fix 404 cases
 
 
 # f = open('gazetteer.txt', 'r')
@@ -21,15 +20,14 @@ app = Flask(__name__)
 # f.close()
 
 papers = [
-    'http://www.huffingtonpost.com',
     'http://cnn.com',
     'http://www.time.com',
     # 'http://www.ted.com',
     # 'http://pandodaily.com',
-    # 'http://www.cnbc.com',
+    'http://www.cnbc.com',
     # 'http://www.foxnews.com',
     # 'http://theatlantic.com',
-    # 'http://www.bbc.co.uk',
+    'http://www.bbc.co.uk',
     # 'http://www.npr.org',
     # 'http://www.suntimes.com',
     # 'http://www.newrepublic.com',
@@ -64,12 +62,12 @@ papers = [
     # http://thedailygrind.com.au
     # http://tehrantimes.com
     # http://www.today.com
-    # http://www.politifact.com
+    'http://www.politifact.com',
     # http://www.nationalenquirer.com
     # http://egotastic.co
     # http://townhall.com
     # http://www.nypost.com
-    # http://www.reuters.com
+    'http://www.reuters.com',
     # http://www.scientificamerican.com
     # http://www.nydailynews.com
     # http://www.newscientist.com
@@ -88,7 +86,7 @@ papers = [
     # http://washingtonpost.com
     # http://hbr.org
     # http://www.ft.com
-    # http://www.aljazeera.com
+    'http://www.aljazeera.com',
     # http://politicker.com
     # http://www.thestreet.com
     # http://www.nj.com
@@ -156,61 +154,66 @@ def reporter(article):
 
 article_data = []
 
+def data_dict(response,url,title,summary,*keys):
+    print(url,title,summary)
+    new_dict = {}
+    for key in keys:
+        try:
+            if key=='country':
+                new_dict[key] = response['results']['places']['focus']['countries'][0]['name']
+            else:
+                new_dict[key] = response['results']['places']['focus']['cities'][0][key]
+        except (KeyError,IndexError):
+            new_dict[key] = 'None'
+    new_dict['url'] = url
+    new_dict['title'] = title
+    new_dict['summary'] = summary
+    return new_dict
 
 def get_papers():
+    my_cliff = Cliff('http://localhost',8999)
+    found_titles = set()
     # Build each paper in the papers url list using build in multithreading method
     for paper in papers:
-        current_paper = newspaper.build(paper,fetch_images=False)
+        current_paper = newspaper.build(paper,fetch_images=False, verbose=True)
         build_papers.append(current_paper)
     news_pool.set(build_papers,threads_per_source=2)
     news_pool.join()
-
     #iterate through built papers, parse each article
     for built_paper in build_papers:
         for article in built_paper.articles:
+            # Create new Article object, download/parse it, add title to found list and check for duplicates before running nlp.
+            article.download()
             article.parse()
-            article.nlp()
-
-            # If article includes designated keywords, add that data to article_data
-            # if includes_keyword(article.keywords):
-
-            # Format text for query string, parse article text with CLIFF
-            encodedText = article.text.encode('utf8').decode()
-            query = urlencode({ 'q': article.text})
-            response = json.loads(urlopen("http://localhost:8999/cliff-2.3.0/parse/text?" + query).read())
-            print(article.url, response)
-            # append relevant data to json response variable
-            article_data.append({
-                'latitude': response['results']['places']['focus']['cities'][0]['lat'],
-                'longitude': response['results']['places']['focus']['cities'][0]['lon'],
-                'city': response['results']['places']['focus']['cities'][0]['name'],
-                'country': response['results']['places']['focus']['countries'][0]['name'],
-                'url': article.url,
-                'title': article.title,
-                'summary': article.summary
-            })
+            if article.title not in found_titles:
+                article.nlp()
+                # If article includes designated keywords, add that data to article_data
+                if includes_keyword(article.keywords):
+                    found_titles.add(article.title)
+                    response = my_cliff.parseText(article.text)
+                    print(article.url)
+                    # append relevant data to json response variable
+                    article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
 
 def test():
+    my_cliff = Cliff('http://localhost',8999)
     article = Article('http://www.cnn.com/2017/07/25/politics/senate-health-care-vote/index.html')
     article.download()
     article.parse()
     article.nlp()
 
     # Format text for query string, parse article text with CLIFF
-    encodedText = article.text.encode('utf8').decode()
-    query = urlencode({ 'q': article.text})
-    response = json.loads(urlopen("http://localhost:8999/cliff-2.3.0/parse/text?" + query).read())
-    print(response)
+    # encodedText = article.text.encode('utf8').decode()
+    # query = urlencode({ 'q': article.text})
+    response = my_cliff.parseText(article.text)
+    print(article.url)
     # append relevant data to json response variable
-    article_data.append({
-        'latitude': response.get(['results']['places']['focus']['cities'][0]['lat'],'None'),
-        'longitude': response['results']['places']['focus']['cities'][0]['lon'],
-        'city': response['results']['places']['focus']['cities'][0]['name'],
-        'country': response['results']['places']['focus']['countries'][0]['name'],
-        'url': article.url,
-        'title': article.title,
-        'summary': article.summary
-    })
+    article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
+
+# my_cliff = Cliff('http://localhost',8999)
+# response = my_cliff.parseText("This is about Einstien at the IIT in New Delhi.")
+# print(response.get('results').get('places').get('focus'))
+
 
 
 @app.route('/')
@@ -219,7 +222,7 @@ def index():
 
 # define route, run function defined above and return as json. Get requests only
 
-@app.route('/todo/api/v1.0/cnn', methods=['GET'])
+@app.route('/worldconflict/api/v1.0/article', methods=['GET'])
 def get_article_data():
     # test()
     get_papers()
