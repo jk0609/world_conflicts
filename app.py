@@ -8,8 +8,12 @@ from urllib.request import urlretrieve, urlopen
 from urllib.parse import urlparse, urlencode, quote
 import json
 from mediameter.cliff import Cliff
+from flask_cors import CORS, cross_origin
 
 app = Flask(__name__)
+CORS(app)
+# write method to exclude irrelevant categories, need to filter category names
+# more restrictive
 #get_articles every 24 hours
 #cut down on load times
 #fix 404 cases
@@ -22,12 +26,12 @@ app = Flask(__name__)
 papers = [
     'http://cnn.com',
     'http://www.time.com',
-    # 'http://www.ted.com',
-    # 'http://pandodaily.com',
-    'http://www.cnbc.com',
-    # 'http://www.foxnews.com',
-    # 'http://theatlantic.com',
-    'http://www.bbc.co.uk',
+    # # 'http://www.ted.com',
+    # # 'http://pandodaily.com',
+    # 'http://www.cnbc.com',
+    # # 'http://www.foxnews.com',
+    # # 'http://theatlantic.com',
+    # 'http://www.bbc.co.uk',
     # 'http://www.npr.org',
     # 'http://www.suntimes.com',
     # 'http://www.newrepublic.com',
@@ -42,7 +46,7 @@ papers = [
     # http://cnet.com
     # http://venturebeat.com
     # http://thedailyworld.com
-    # http://nytimes.com
+    'http://nytimes.com',
     # http://yahoo.com
     # http://www.nbcnews.com
     # http://thedailypage.com
@@ -56,7 +60,7 @@ papers = [
     # http://www.dailyfinance.com
     # http://www.politico.com
     # http://newsroom.fb.com
-    # http://independent.co.uk
+    'http://independent.co.uk',
     # http://thedailyjournal.com
     # http://thedailynewsegypt.com
     # http://thedailygrind.com.au
@@ -67,7 +71,7 @@ papers = [
     # http://egotastic.co
     # http://townhall.com
     # http://www.nypost.com
-    'http://www.reuters.com',
+    # 'http://www.reuters.com',
     # http://www.scientificamerican.com
     # http://www.nydailynews.com
     # http://www.newscientist.com
@@ -86,7 +90,7 @@ papers = [
     # http://washingtonpost.com
     # http://hbr.org
     # http://www.ft.com
-    'http://www.aljazeera.com',
+    # 'http://www.aljazeera.com',
     # http://politicker.com
     # http://www.thestreet.com
     # http://www.nj.com
@@ -114,7 +118,7 @@ papers = [
     # http://www.bbcamerica.com
     # http://washingtonindependent.com
 ]
-
+article_data = []
 build_papers = []
 
 def includes_keyword(article_keywords):
@@ -125,34 +129,6 @@ def includes_keyword(article_keywords):
             output = True
             break
     return output
-
-def reporter(article):
-    print('test')
-    try:
-        if article.download() is None:
-            return 'no problem'
-        else:
-            return 'generic'
-    except ArticleException():
-        return 'false'
-    # try:
-    #     website_url = "http://foobar.com/article/1234"
-    #     site = newspaper.Article(website_url)
-    #
-    #     page = requests.get(website_url)
-    #     page.raise_for_status()
-    #
-    #     site.download(html=page.content)
-    #     site.parse()
-    #
-    #     # do something with the `site` Article object here...
-    #
-    # except requests.HTTPError, e:
-    #     if e.response.status_code in [404, 410, 400]:
-    #         # do something here...
-    #         pass
-
-article_data = []
 
 def data_dict(response,url,title,summary,*keys):
     print(url,title,summary)
@@ -188,12 +164,12 @@ def get_papers():
             if article.title not in found_titles:
                 article.nlp()
                 # If article includes designated keywords, add that data to article_data
-                if includes_keyword(article.keywords):
-                    found_titles.add(article.title)
-                    response = my_cliff.parseText(article.text)
-                    print(article.url)
-                    # append relevant data to json response variable
-                    article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
+                # if includes_keyword(article.keywords):
+                found_titles.add(article.title)
+                response = my_cliff.parseText(article.text)
+                print(article.url)
+                # append relevant data to json response variable
+                article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
 
 def test():
     my_cliff = Cliff('http://localhost',8999)
@@ -201,31 +177,18 @@ def test():
     article.download()
     article.parse()
     article.nlp()
-
-    # Format text for query string, parse article text with CLIFF
-    # encodedText = article.text.encode('utf8').decode()
-    # query = urlencode({ 'q': article.text})
     response = my_cliff.parseText(article.text)
     print(article.url)
-    # append relevant data to json response variable
     article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
 
-# my_cliff = Cliff('http://localhost',8999)
-# response = my_cliff.parseText("This is about Einstien at the IIT in New Delhi.")
-# print(response.get('results').get('places').get('focus'))
 
 
-
-@app.route('/')
-def index():
-    return "Hello, World!"
-
-# define route, run function defined above and return as json. Get requests only
-
-@app.route('/worldconflict/api/v1.0/article', methods=['GET'])
+@app.route('/worldconflict/api/v1.0/articles', methods=['GET'])
 def get_article_data():
-    # test()
-    get_papers()
+    article_data[:]=[]
+    test()
+    # get_papers()
+    # found_titles[:]=[]
     return jsonify({'articles':article_data})
 
 if __name__ == '__main__':

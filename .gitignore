@@ -1,3 +1,4 @@
 flask/
 venv/
 ngfrontend/node_modules
+ngfrontend/src/app/api-keys.ts 
