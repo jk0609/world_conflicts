@@ -2,8 +2,19 @@
   <h1>Global Conflict</h1>
 </div>
 
-<agm-map [latitude]="lat" [longitude]="lng">
-  <agm-marker *ngFor='let article of articles' [latitude]="article.lat" [longitude]="article.lon" [label]='article.title'></agm-marker>
+<agm-map
+  [latitude]="50"
+  [longitude]="50"
+  [minZoom]='2'>
+  <agm-marker *ngFor='let article of articles'
+    [latitude]="article.lat"
+    [longitude]="article.lon"
+    [title]='article.title'>
+    <div class='agm-info-window-content'>
+      <p>Test</p>
+    </div>
+  </agm-marker>
+
 </agm-map>
 
 

@@ -17,6 +17,8 @@ CORS(app)
 #get_articles every 24 hours
 #cut down on load times
 #fix 404 cases
+#README
+#Tests
 
 
 # f = open('gazetteer.txt', 'r')
@@ -24,111 +26,72 @@ CORS(app)
 # f.close()
 
 papers = [
-    'http://cnn.com',
-    'http://www.time.com',
-    # # 'http://www.ted.com',
-    # # 'http://pandodaily.com',
-    # 'http://www.cnbc.com',
-    # # 'http://www.foxnews.com',
-    # # 'http://theatlantic.com',
+    # 'http://cnn.com',
+    # 'http://www.time.com',
+    # 'http://www.ted.com',
+    'http://pandodaily.com',
+    'http://www.cnbc.com',
+    # 'http://www.foxnews.com',
+    # 'http://theatlantic.com',
     # 'http://www.bbc.co.uk',
     # 'http://www.npr.org',
     # 'http://www.suntimes.com',
     # 'http://www.newrepublic.com',
-    # http://thecitizen.com
-    # http://www.morningstar.com
-    # http://thedailyfairfield.com
-    # http://medicalxpress.com
-    # http://www.news.com.au
-    # http://www.health.com
-    # http://wsj.com
-    # http://www.theinsider.com
-    # http://cnet.com
-    # http://venturebeat.com
-    # http://thedailyworld.com
-    'http://nytimes.com',
-    # http://yahoo.com
-    # http://www.nbcnews.com
-    # http://thedailypage.com
-    # http://www.popsci.com
-    # http://www.pbs.org
-    # http://www.nasa.gov
-    # http://www.guardiannews.com
-    # http://www.weather.com
-    # http://telegraph.co.uk
-    # http://theatlanticwire.com
-    # http://www.dailyfinance.com
-    # http://www.politico.com
-    # http://newsroom.fb.com
-    'http://independent.co.uk',
-    # http://thedailyjournal.com
-    # http://thedailynewsegypt.com
-    # http://thedailygrind.com.au
-    # http://tehrantimes.com
-    # http://www.today.com
-    'http://www.politifact.com',
-    # http://www.nationalenquirer.com
-    # http://egotastic.co
-    # http://townhall.com
-    # http://www.nypost.com
+    # 'http://thecitizen.com',
+    # 'http://www.morningstar.com',
+    # 'http://thedailyfairfield.com',
+    # 'http://www.news.com.au',
+    # 'http://www.theinsider.com',
+    # 'http://thedailyworld.com',
+    # 'http://nytimes.com',
+    # 'http://yahoo.com',
+    # 'http://www.nbcnews.com',
+    # 'http://thedailypage.com',
+    # 'http://www.pbs.org',
+    # 'http://www.guardiannews.com',
+    # 'http://telegraph.co.uk',
+    # 'http://theatlanticwire.com',
+    # 'http://independent.co.uk',
+    # 'http://thedailyjournal.com',
+    # 'http://thedailynewsegypt.com',
+    # 'http://thedailygrind.com.au',
+    # 'http://tehrantimes.com',
+    # 'http://townhall.com',
     # 'http://www.reuters.com',
-    # http://www.scientificamerican.com
-    # http://www.nydailynews.com
-    # http://www.newscientist.com
-    # http://bigstory.ap.org
-    # http://www.c-span.org
-    # http://washingtontimes.com
-    # http://thedailyreview.com
-    # http://inquirer.net
-    # http://abcnews.com
-    # http://thedailytimes.com
-    # http://washingtonexaminer.com
-    # http://hotair.com
-    # http://www.cbc.ca
-    # http://www.slate.com
-    # http://www.forbes.com
-    # http://washingtonpost.com
-    # http://hbr.org
-    # http://www.ft.com
+    # 'http://www.c-span.org',
+    # 'http://washingtontimes.com',
+    # 'http://inquirer.net',
+    # 'http://abcnews.com',
+    # 'http://washingtonexaminer.com',
+    # 'http://hotair.com',
+    # 'http://www.cbc.ca',
+    # 'http://www.slate.com',
+    # 'http://washingtonpost.com',
     # 'http://www.aljazeera.com',
-    # http://politicker.com
-    # http://www.thestreet.com
-    # http://www.nj.com
-    # http://thedailyreporter.com
-    # http://www.economist.com
-    # http://phys.org
-    # http://www.usmagazine.com
-    # http://www.cbsnews.com
-    # http://washingtonian.com
-    # http://www.sciencedaily.com
-    # http://thinkprogress.org
-    # http://www.usnews.com=
-    # http://nationalgeographic.com
-    # http://thechronicle.com.au
-    # http://tbnweekly.com
-    # http://thedailyfix.com
-    # http://www.realclearpolitics.com
-    # http://usatoday.com
-    # http://discovermagazine.com
-    # http://arstechnica.com
-    # http://foreignpolicy.com
-    # http://www.redstate.com
-    # http://www.marketwatch.com
-    # http://cbn.com
-    # http://www.bbcamerica.com
-    # http://washingtonindependent.com
+    # 'http://thedailyreporter.com',
+    # 'http://www.cbsnews.com',
+    # 'http://www.usnews.com',
+    # 'http://nationalgeographic.com',
+    # 'http://thechronicle.com.au',
+    # 'http://usatoday.com',
+    # 'http://discovermagazine.com',
+    # 'http://foreignpolicy.com',
+    # 'http://www.redstate.com',
+    # 'http://www.bbcamerica.com',
 ]
 article_data = []
 build_papers = []
 
 def includes_keyword(article_keywords):
-    output = False
+    counter = 0
     keywords = ['weapons','conflict','rebels','arms','battle','war','rebel','threat','standoff','escalate','trespass']
     for word in keywords:
         if word in article_keywords:
-            output = True
-            break
-    return output
+            counter+=1
+    if counter>=2:
+        return True
+    else:
+        return False
 
 def data_dict(response,url,title,summary,*keys):
     print(url,title,summary)
@@ -145,6 +108,14 @@ def data_dict(response,url,title,summary,*keys):
     new_dict['title'] = title
     new_dict['summary'] = summary
     return new_dict
+
+f = open('categories.txt','r+')
+def get_categories():
+    for paper in papers:
+        current_paper = newspaper.build(paper,fetch_images=False, verbose=True)
+        for url in current_paper.category_urls():
+            f.write(url+'\n')
+get_categories()
 
 def get_papers():
     my_cliff = Cliff('http://localhost',8999)
@@ -182,11 +153,10 @@ def test():
     article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
 
 
-
 @app.route('/worldconflict/api/v1.0/articles', methods=['GET'])
 def get_article_data():
     article_data[:]=[]
-    test()
+    # test()
     # get_papers()
     # found_titles[:]=[]
     return jsonify({'articles':article_data})
