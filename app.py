@@ -46,7 +46,6 @@ papers = [
     'http://yahoo.com',
     'http://www.nbcnews.com',
     'http://thedailypage.com',
-    'http://www.pbs.org',
     'http://www.guardiannews.com',
     'http://telegraph.co.uk',
     'http://theatlanticwire.com',
@@ -116,14 +115,6 @@ def data_dict(response,url,title,summary,*keys):
     new_dict['summary'] = summary
     return new_dict
 
-# f = open('categories.txt','r+')
-# def get_categories():
-#     for paper in papers:
-#         current_paper = newspaper.build(paper,fetch_images=False, verbose=True)
-#         for url in current_paper.category_urls():
-#             f.write(url+'\n')
-# get_categories()
-
 def get_papers():
     my_cliff = Cliff('http://localhost',8999)
     found_titles = set()
@@ -149,21 +140,9 @@ def get_papers():
                     # append relevant data to json response variable
                     article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
 
-def test():
-    my_cliff = Cliff('http://localhost',8999)
-    article = Article('http://www.cnn.com/2017/07/25/politics/senate-health-care-vote/index.html')
-    article.download()
-    article.parse()
-    article.nlp()
-    response = my_cliff.parseText(article.text)
-    print(article.url)
-    article_data.append(data_dict(response,article.url,article.title,article.summary,'lat','lon','name','country'))
-
-
 @app.route('/worldconflict/api/v1.0/articles', methods=['GET'])
 def get_article_data():
     article_data[:]=[]
-    # test()
     get_papers()
     return jsonify({'articles':article_data})
 
