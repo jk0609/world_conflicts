@@ -8,7 +8,6 @@ import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AppComponent } from './app.component';
 import { MapComponent } from './map/map.component';
 import { routing } from './app.routing';
-import { AgmCoreModule } from '@agm/core';
 
 
 export const firebaseConfig = {
@@ -29,9 +28,6 @@ export const firebaseConfig = {
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFireDatabaseModule,
     routing,
-    AgmCoreModule.forRoot({
-      apiKey: 'AIzaSyBn0I3ixv29y4hHj0R13hxzt_eN1g9qyNs'
-    })
   ],
   providers: [],
   bootstrap: [AppComponent]

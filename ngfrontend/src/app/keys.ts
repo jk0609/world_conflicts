@@ -6,3 +6,6 @@ export var masterFirebaseConfig = {
     storageBucket: "",
     messagingSenderId: "414879375040"
   };
+  // AgmCoreModule.forRoot({
+  //   apiKey: 'AIzaSyBn0I3ixv29y4hHj0R13hxzt_eN1g9qyNs'
+  // })
