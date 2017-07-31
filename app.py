@@ -28,10 +28,10 @@ CORS(app)
 papers = [
     'http://cnn.com',
     'http://www.time.com',
-    'http://www.ted.com',
-    'http://pandodaily.com',
+    'http://www.conflict-news.com',
     'http://www.cnbc.com',
-    'http://www.foxnews.com',
+    'http://www.foxnews.com/category/world/conflicts.html',
+    'http://www.economist.com/topics/war-and-conflict',
     'http://theatlantic.com',
     'http://www.bbc.co.uk',
     'http://www.npr.org',
@@ -66,7 +66,7 @@ papers = [
     'http://www.cbc.ca',
     'http://www.slate.com',
     'http://washingtonpost.com',
-    'http://www.aljazeera.com',
+    'http://www.aljazeera.com/topics/categories/war-conflict.html',
     'http://thedailyreporter.com',
     'http://www.cbsnews.com',
     'http://www.usnews.com',
@@ -75,7 +75,6 @@ papers = [
     'http://usatoday.com',
     'http://discovermagazine.com',
     'http://foreignpolicy.com',
-    'http://www.redstate.com',
     'http://www.bbcamerica.com',
 ]
 article_data = []
